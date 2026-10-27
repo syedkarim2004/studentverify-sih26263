@@ -39,6 +39,9 @@ yarn-error.log*
 /.agents/
 /.codex/
 /outputs/
+/output/
+/screenshots/
+/tmp/
 /work/
 
 # OS metadata

@@ -1,23 +1,86 @@
-# StudentVerify — SIH26263
+# AICTE StudentVerify
 
-Working independent prototype for APAAR-linked admissions monitoring using synthetic data.
+An APAAR-linked student data management and verification prototype for AICTE-approved institutions. The platform brings institution submissions, automated validation, admission monitoring, consent-based verification, reporting, and policy simulation into one operational workspace.
 
-## Implemented
-- React/TypeScript dashboard, institution perspectives, searchable paginated student records.
-- CSV import with preview, structural validation, 500-row/2 MB UI limits.
-- Missing/invalid ID checks, exact-identifier potential duplicate flags, configurable demo intake checks.
-- Record corrections, reasoned finding review, timestamped activity history.
-- Synthetic consent grant/revoke and limited verification record export.
-- Server persistence in Cloudflare D1 with revision-based concurrent-update protection.
+> **Prototype status:** All records and APAAR responses are synthetic. This repository is not connected to production AICTE, APAAR, DigiLocker, or Academic Bank of Credits services.
 
-## Run
-See [CODEX_HANDOFF.md](CODEX_HANDOFF.md) for portable local setup and continuation instructions.
+![AICTE StudentVerify dashboard](docs/assets/dashboard-overview.png)
 
-Install with the Sites dependency helper, generate schema migrations (`npm run db:generate` only after schema changes), build, apply pending local D1 migrations, and start the managed Sites preview. Hosting manifest: `.openai/hosting.json`.
+## Why this system exists
 
-## Limits and next steps
-This hosted prototype uses TypeScript server routes and D1 rather than the proposed FastAPI/PostgreSQL production stack. Role switching is a demo perspective selector, not institution authentication. All record operations are within the private owner's workspace. API handlers must not be deployed publicly without authenticated operator and institution permissions. Header identity is provided by Sites dispatch; absent headers fall back to a private-preview workspace.
+Student information currently arrives through different institutional submission processes. StudentVerify demonstrates a unified flow in which institutions submit student-level records against an APAAR identifier and AICTE can monitor quality, intake compliance, duplicate enrolment signals, and verification requests in near real time.
 
-APAAR, AICTE and DigiLocker services are not connected. IDs are format-checked and matched against synthetic data only. No authenticity claims. Consent controls demonstrate a scenario; production consent must be recorded from the actual student and enforced on the server. The API returns the full owner workspace because this is a private demonstration, not a third-party verification endpoint.
+## Core capabilities
 
-Student profiles and enrolments currently share one prototype record; production should normalize identity, enrolment, institution, programme/intake, consent, findings and audit tables. Intake rules are demonstration settings and need official versioned category-specific requirements. Name similarity/anomaly ML, XLSX import, signed certificates and external integration adapters are future work. Activity history is traceable but not an immutable compliance ledger.
+- Institution-level CSV submission with preview and structural validation.
+- Missing or malformed APAAR detection and potential duplicate matching.
+- Approved-intake, supernumerary, NRI, OCI, and foreign-national monitoring.
+- Cross-institution academic timeline and explainable conflict investigation.
+- AICTE and institution dashboard perspectives with searchable records.
+- Consent-controlled stakeholder verification demonstration.
+- Policy Digital Twin for simulating intake changes before implementation.
+- Reports, certificate display, audit activity, and integration API examples.
+
+## Signature innovation
+
+The **Policy Digital Twin** turns the platform from a reporting portal into a planning tool. Authorized users can model institution-level intake changes, calculate affected seats, identify projected breaches, and save an auditable scenario without modifying operational records.
+
+The investigation workspace complements it with three synchronized views:
+
+1. A student academic timeline.
+2. A cross-institution relationship graph.
+3. A side-by-side conflict comparison with source evidence and suggested next steps.
+
+## System design
+
+```mermaid
+flowchart LR
+    I["AICTE-approved institution"] --> U["Secure upload / API"]
+    U --> V["Schema and APAAR format validation"]
+    V --> E["Duplicate, intake and anomaly engine"]
+    E --> R["Central student repository"]
+    R --> D["Monitoring and policy dashboards"]
+    R --> C["Consent and verification gateway"]
+    R --> A["Reports, certificates and audit trail"]
+```
+
+The current prototype uses React and TypeScript with Vinext, Cloudflare Workers, and D1. See [System Architecture](docs/ARCHITECTURE.md) for component boundaries, request flows, data handling, and production recommendations.
+
+## Repository map
+
+```text
+app/
+  api/                 Server routes for workspace, integration and policy simulation
+  globals.css          Portal design system and responsive layouts
+  page.tsx             Dashboard and operational workflows
+db/                    Drizzle schema and database access
+drizzle/               Append-only D1 migrations
+docs/                  Architecture and development documentation
+lib/model.ts           Shared domain types, synthetic data and validation rules
+worker/                 Cloudflare worker entry point
+scripts/                Portable build and local runtime tooling
+```
+
+## Local development
+
+Requirements: Node.js 22.13 or newer and pnpm.
+
+```bash
+pnpm install --frozen-lockfile
+pnpm exec tsc --noEmit
+pnpm run build
+pnpm run dev
+```
+
+For local D1 setup, migration rules, and handoff notes, see [Development Guide](docs/DEVELOPMENT.md).
+
+## Security boundaries
+
+- Role switching is a prototype perspective selector, not production authorization.
+- APAAR values are format-checked locally; authenticity is not asserted.
+- Duplicate enrolments are review signals and may represent valid transfers or concurrent study.
+- Production deployment requires institution-scoped authentication, server-enforced consent, least-privilege verification responses, encrypted secrets, and an immutable audit design.
+
+## License and use
+
+This is a concept implementation for SIH problem statement 26263. Validate all regulatory, privacy, security, accessibility, and integration requirements with AICTE and authorized ecosystem partners before production use.

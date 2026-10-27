@@ -8,6 +8,13 @@
       "when": 1793042375921,
       "tag": "0000_chief_argent",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1793076834954,
+      "tag": "0001_needy_scalphunter",
+      "breakpoints": true
     }
   ]
 }
