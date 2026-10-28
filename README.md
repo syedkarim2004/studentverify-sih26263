@@ -4,8 +4,6 @@ An APAAR-linked student data management and verification prototype for AICTE-app
 
 > **Prototype status:** All records and APAAR responses are synthetic. This repository is not connected to production AICTE, APAAR, DigiLocker, or Academic Bank of Credits services.
 
-![AICTE StudentVerify dashboard](docs/assets/dashboard-overview.png)
-
 ## Why this system exists
 
 Student information currently arrives through different institutional submission processes. StudentVerify demonstrates a unified flow in which institutions submit student-level records against an APAAR identifier and AICTE can monitor quality, intake compliance, duplicate enrolment signals, and verification requests in near real time.
@@ -13,6 +11,7 @@ Student information currently arrives through different institutional submission
 ## Core capabilities
 
 - Institution-level CSV submission with preview and structural validation.
+- A 10,000-record synthetic monitoring dataset spanning 12 institutions and six programmes.
 - Missing or malformed APAAR detection and potential duplicate matching.
 - Approved-intake, supernumerary, NRI, OCI, and foreign-national monitoring.
 - Cross-institution academic timeline and explainable conflict investigation.
@@ -50,13 +49,14 @@ The current prototype uses React and TypeScript with Vinext, Cloudflare Workers,
 
 ```text
 app/
-  api/                 Server routes for workspace, integration and policy simulation
+  api/                 Workspace, integration, verification and policy APIs
   globals.css          Portal design system and responsive layouts
   page.tsx             Dashboard and operational workflows
 db/                    Drizzle schema and database access
 drizzle/               Append-only D1 migrations
 docs/                  Architecture and development documentation
 lib/model.ts           Shared domain types, synthetic data and validation rules
+lib/state-storage.ts   Compressed high-volume workspace serialization
 worker/                 Cloudflare worker entry point
 scripts/                Portable build and local runtime tooling
 ```
@@ -68,11 +68,14 @@ Requirements: Node.js 22.13 or newer and pnpm.
 ```bash
 pnpm install --frozen-lockfile
 pnpm exec tsc --noEmit
+pnpm run test:validation
 pnpm run build
 pnpm run dev
 ```
 
 For local D1 setup, migration rules, and handoff notes, see [Development Guide](docs/DEVELOPMENT.md).
+
+See [SIH 26263 requirement coverage](docs/REQUIREMENTS_COVERAGE.md) for a requirement-by-requirement implementation matrix and the remaining production controls.
 
 ## Security boundaries
 
@@ -80,6 +83,10 @@ For local D1 setup, migration rules, and handoff notes, see [Development Guide](
 - APAAR values are format-checked locally; authenticity is not asserted.
 - Duplicate enrolments are review signals and may represent valid transfers or concurrent study.
 - Production deployment requires institution-scoped authentication, server-enforced consent, least-privilege verification responses, encrypted secrets, and an immutable audit design.
+
+## Repository hygiene
+
+Dependencies, build output, local D1 state, screenshots, editor state, environment files and credentials are intentionally excluded from Git. Do not commit `.next`, `.vinext`, `.wrangler`, `.sites-runtime`, `dist`, `node_modules`, local output folders or secrets.
 
 ## License and use
 

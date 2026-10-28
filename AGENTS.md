@@ -7,7 +7,7 @@ Continue SIH26263: an APAAR-based student data management and verification platf
 - React/TypeScript with Vinext; server API at app/api/workspace/route.ts.
 - Hosted prototype uses Cloudflare D1, not FastAPI/PostgreSQL.
 - Shared types, synthetic data and validation rules: lib/model.ts.
-- Schema: db/schema.ts. Existing schema migration: drizzle/0000_chief_argent.sql.
+- Schema: db/schema.ts. Existing migrations are append-only under drizzle/.
 - UI: app/page.tsx and app/globals.css.
 - Features: CSV preview/import, paginated student search, institution dashboards, duplicate/format/intake flags, corrections, reasoned reviews, activity history, synthetic consent/verification demo.
 - Source export contains no database data, credentials, installed dependencies or build output. Original Sites project identity has been removed from the export. Do not infer deployment ownership from this repository.

@@ -1,5 +1,6 @@
 import {env} from 'cloudflare:workers';
 import {capacity,institutions,programmes,type State} from '../../../lib/model';
+import {packState,unpackState} from '../../../lib/state-storage';
 
 export const dynamic='force-dynamic';
 function owner(req:Request){return req.headers.get('oai-authenticated-user-id')||'private-demo-workspace'}
@@ -9,7 +10,7 @@ type Adjustments=Record<string,number>;
 async function workspace(req:Request){
  const row=await db().prepare('SELECT data FROM workspaces WHERE id = ?').bind(owner(req)).first<{data:string}>();
  if(!row)throw new Error('Workspace not initialized. Open the dashboard first.');
- return JSON.parse(row.data) as State;
+ return unpackState(row.data);
 }
 
 function calculate(state:State,adjustments:Adjustments){
@@ -40,7 +41,7 @@ export async function POST(req:Request){
   state.revision++;state.activities.unshift({id:crypto.randomUUID(),action:'Policy twin scenario saved',detail:`${name} · ${result.summary.projectedBreaches} projected breach(es) · ${result.summary.seatChange>=0?'+':''}${result.summary.seatChange} seats.`,at:now});
   await db().batch([
    db().prepare('INSERT INTO policy_scenarios (id,owner_id,name,adjustments,result,created_at) VALUES (?,?,?,?,?,?)').bind(id,owner(req),name,JSON.stringify(adjustments),JSON.stringify(result),now),
-   db().prepare('UPDATE workspaces SET data = ?, updated_at = ? WHERE id = ?').bind(JSON.stringify(state),now,owner(req))
+   db().prepare('UPDATE workspaces SET data = ?, updated_at = ? WHERE id = ?').bind(await packState(state),now,owner(req))
   ]);
   return Response.json({scenario:{id,name,adjustments,result,createdAt:now}},{status:201});
  }catch(e){return Response.json({error:e instanceof Error?e.message:'Unable to save scenario.'},{status:400})}
